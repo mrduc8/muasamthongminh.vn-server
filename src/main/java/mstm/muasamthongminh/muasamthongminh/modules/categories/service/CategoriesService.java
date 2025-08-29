@@ -13,11 +13,13 @@ public interface CategoriesService {
     //Lấy danh sách truy vấn theo điều kiện
     List<CategoriesDto> getCategoryTree();
 
+    List<CategoriesDto> getActiveCategories();
+
     //Sửa đổi danh mục
     ResponseEntity<?> updateCategories(CategoriesDto categoriesDto, User user);
 
     //Xoá Danh mục
     ResponseEntity<?> deleteCategories(Long id, User user);
 
-
+    List<CategoriesDto> searchCategories(String keyword);
 }

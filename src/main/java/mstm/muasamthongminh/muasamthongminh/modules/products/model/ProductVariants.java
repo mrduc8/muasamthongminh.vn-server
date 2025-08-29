@@ -19,27 +19,28 @@ public class ProductVariants {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Products productId;
+
+    @ManyToOne
+    @JoinColumn(name = "variant_id")
+    private ProductVariants variant;
 
     @Column(name = "sku")
     private String sku;
 
-    @Column(name = "price")
-    private BigDecimal price;
+    @Column(name = "original_price")
+    private BigDecimal originalPrice;
 
-    @Column(name = "quantity_in_stock")
-    private Long quantityInStock;
+    @Column(name = "sale_price")
+    private BigDecimal salePrice;
 
-    @Column(name = "image_url")
-    private String imageUrl;
-
-    @Column(name = "weight")
-    private BigDecimal weight;
+    @Column(name = "stock_quantity")
+    private Integer stockQuantity;
 
     @Enumerated(EnumType.STRING)
-    @JoinColumn(name = "status")
+    @Column(name = "status")
     private ProductVariantStatus status;
 
     @Column(name = "created_at")

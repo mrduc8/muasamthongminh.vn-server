@@ -12,4 +12,8 @@ public interface ShopService {
 
     // Lấy tất cả thông tin shop
     List<ShopDto> getAllShop();
+
+    Shop getShopById(Long shopId);
+
+    Shop getShopByUserId(Long userId);
 }

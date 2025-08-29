@@ -4,7 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 src/main/resources/application.properties
-/src/main/resources/firebase/*.json
+src/main/resources/firebase/*.json
 
 ### STS ###
 .apt_generated

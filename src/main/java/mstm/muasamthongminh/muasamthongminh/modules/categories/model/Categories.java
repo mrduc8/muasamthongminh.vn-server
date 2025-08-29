@@ -35,7 +35,7 @@ public class Categories {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private CategoryStatus status = CategoryStatus.ACTIVE;
+    private CategoryStatus status;
 
     @Column(name = "image_url")
     private String imageUrl;

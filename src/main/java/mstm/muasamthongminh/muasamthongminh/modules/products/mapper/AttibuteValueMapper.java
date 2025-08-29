@@ -8,7 +8,7 @@ public class AttibuteValueMapper {
     public static AttributeValues toEntity(AttributeValueDto dto, Attributes attributes) {
         if (dto == null) return null;
 
-        return AttributeValues.builder()
+        return mstm.muasamthongminh.muasamthongminh.modules.products.model.AttributeValues.builder()
                 .id(dto.getId())
                 .attributeId(attributes)
                 .value(dto.getValue())

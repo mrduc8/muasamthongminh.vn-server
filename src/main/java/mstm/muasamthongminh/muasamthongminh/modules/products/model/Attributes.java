@@ -26,6 +26,11 @@ public class Attributes {
     @Column(name = "slug")
     private String slug;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Products product;
+
+
     @Enumerated(EnumType.STRING)
     @JoinColumn(name = "status")
     private AttributeStatus status;

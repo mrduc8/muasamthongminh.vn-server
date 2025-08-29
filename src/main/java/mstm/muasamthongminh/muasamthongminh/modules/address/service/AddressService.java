@@ -25,7 +25,14 @@ public class AddressService {
 
 
     public Address createAddress(Address address, User user) {
-        address.setUser(user); // Đảm bảo liên kết user
+        address.setUser(user);
+        String fullAddress = String.join(", ",
+                address.getDetailedAddress(),
+                address.getWard(),
+                address.getDistrict(),
+                address.getProvinceCity()
+        );
+        address.setAddress(fullAddress);
         return addressRepository.save(address);
     }
 

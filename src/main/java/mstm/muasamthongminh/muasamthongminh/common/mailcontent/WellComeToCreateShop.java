@@ -14,4 +14,17 @@ public class WellComeToCreateShop {
                 <p>Đội ngũ hỗ trợ Mua Sắm Thông Minh</p>
                 """.formatted(username, bankName, accountNumber);
     }
+
+    public static String buildShopApprovedContent(String username, String requestName) {
+        return """
+                Xin chào %s,
+                
+                Yêu cầu mở shop "%s" của bạn đã được PHÊ DUYỆT thành công.
+                
+                Bạn có thể đăng nhập để hoàn thiện hồ sơ shop, thêm sản phẩm và bắt đầu bán hàng.
+                
+                Trân trọng,
+                MuasamThongMinh Team
+                """.formatted(username, requestName != null ? requestName : "Shop của bạn");
+    }
 }

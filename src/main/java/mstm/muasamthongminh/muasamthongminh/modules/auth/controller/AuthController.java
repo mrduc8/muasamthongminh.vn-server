@@ -45,6 +45,24 @@
             }
         }
 
+        @PostMapping("/update-email")
+        public ResponseEntity<String> updateEmail(@RequestHeader("Authorization") String token,
+                                                  @RequestBody Map<String, String> body) {
+            String newEmail = body.get("email");
+
+            if (newEmail == null || newEmail.isEmpty()) {
+                return ResponseEntity.badRequest().body("Email mới không được để trống");
+            }
+
+            try {
+                token = token.replace("Bearer ", "");
+                authService.requestNewEmail(token, newEmail);
+                return ResponseEntity.ok("Đã gửi email xác thực tới " + newEmail);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+            }
+        }
+
         @GetMapping("/check-email")
         public ResponseEntity<Map<String, Object>> checkEmailExists(@RequestParam String email) {
             try {
@@ -62,7 +80,7 @@
         }
 
         @PostMapping("/register")
-        public ResponseEntity<?> register(@RequestBody RegisterRequest request, HttpServletResponse response    ) {
+        public ResponseEntity<?> register(@RequestBody RegisterRequest request, HttpServletResponse response) {
             try {
 
                 // Đăng ký user

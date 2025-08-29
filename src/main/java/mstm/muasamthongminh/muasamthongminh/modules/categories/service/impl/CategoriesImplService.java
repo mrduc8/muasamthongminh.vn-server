@@ -1,6 +1,7 @@
 package mstm.muasamthongminh.muasamthongminh.modules.categories.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import mstm.muasamthongminh.muasamthongminh.common.enums.CategoryStatus;
 import mstm.muasamthongminh.muasamthongminh.common.service.ImageUploadService;
 import mstm.muasamthongminh.muasamthongminh.modules.auth.model.User;
 import mstm.muasamthongminh.muasamthongminh.modules.auth.repository.AuthUserRepository;
@@ -62,6 +63,14 @@ public class CategoriesImplService implements CategoriesService {
         return buildTree(0L, grouped);
     }
 
+    @Override
+    public List<CategoriesDto> getActiveCategories() {
+        return categoriesRepository.findByStatus(CategoryStatus.ACTIVE)
+                .stream()
+                .map(CategoriesMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
     private List<CategoriesDto> buildTree(Long parentId, Map<Long, List<Categories>> grouped) {
         List<Categories> children = grouped.getOrDefault(parentId, Collections.emptyList());
 
@@ -90,14 +99,14 @@ public class CategoriesImplService implements CategoriesService {
             }
         }
 
-        if (exting.getName() != null) exting.setName(dto.getName());
-        if (exting.getSlug() != null) exting.setSlug(dto.getSlug());
+        if (dto.getName() != null) exting.setName(dto.getName());
+        if (dto.getSlug() != null) exting.setSlug(dto.getSlug());
         if (dto.getParentId() != null) exting.setParentId(dto.getParentId());
-        if (exting.getSortOrder() != null) exting.setSortOrder(exting.getSortOrder());
-        if (exting.getStatus() != null) exting.setStatus(exting.getStatus());
-        if (exting.getDescription() != null) exting.setDescription(exting.getDescription());
-        if (exting.getMetaTitle() != null) exting.setMetaTitle(exting.getMetaTitle());
-        if (exting.getMetaDescription() != null) exting.setMetaDescription(exting.getMetaDescription());
+        if (dto.getSortOrder() != null) exting.setSortOrder(dto.getSortOrder());
+        if (dto.getStatus() != null) exting.setStatus(dto.getStatus());
+        if (dto.getDescription() != null) exting.setDescription(dto.getDescription());
+        if (dto.getMetaTitle() != null) exting.setMetaTitle(dto.getMetaTitle());
+        if (dto.getMetaDescription() != null) exting.setMetaDescription(dto.getMetaDescription());
         exting.setUpdatedByUserId(user);
         exting.setUpdatedAt(dto.getUpdatedAt() != null ? dto.getUpdatedAt() : LocalDateTime.now());
 
@@ -127,5 +136,27 @@ public class CategoriesImplService implements CategoriesService {
         return ResponseEntity.ok("Xoá danh mục thành công");
     }
 
+    @Override
+    public List<CategoriesDto> searchCategories(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return categoriesRepository.findAll()
+                    .stream()
+                    .map(CategoriesMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+
+        String normalizedKeyword = removeVietnameseAccents(keyword).toLowerCase();
+
+        return categoriesRepository.searchByNameIgnoreVietnamese(normalizedKeyword)
+                .stream()
+                .map(CategoriesMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private String removeVietnameseAccents(String input) {
+        String normalized = java.text.Normalizer.normalize(input, java.text.Normalizer.Form.NFD);
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        return pattern.matcher(normalized).replaceAll("");
+    }
 
 }

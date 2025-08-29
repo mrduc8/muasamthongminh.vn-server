@@ -16,6 +16,4 @@ public interface BrandService {
     // Sửa một thương hiệu cụ thể
     ResponseEntity<?> updatedBrands(BrandDto dto, User user);
 
-    // Xoá một thương hiệu
-
 }

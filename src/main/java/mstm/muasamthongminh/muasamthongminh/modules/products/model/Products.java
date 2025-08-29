@@ -2,10 +2,10 @@ package mstm.muasamthongminh.muasamthongminh.modules.products.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import mstm.muasamthongminh.muasamthongminh.modules.auth.model.User;
 import mstm.muasamthongminh.muasamthongminh.modules.brands.model.Brands;
 import mstm.muasamthongminh.muasamthongminh.modules.categories.model.Categories;
 import mstm.muasamthongminh.muasamthongminh.modules.products.enums.ProductStatus;
+import mstm.muasamthongminh.muasamthongminh.modules.shop.model.Shop;
 
 import java.text.Normalizer;
 import java.time.LocalDateTime;
@@ -26,31 +26,23 @@ public class Products {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "sku_base")
-    private String skuBase;
-
-    @Column(name = "short_description")
-    private String shortDescription;
-
-    @Column(name = "long_description")
-    private String longDescription;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brand_id", nullable = false)
+    @JoinColumn(name = "shop_id", nullable = false)
+    private Shop shopId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "brand_id", nullable = true)
     private Brands brandId;
 
-    @Column(name = "original_price")
-    private String originalPrice;
-
-    @Column(name = "selling _price")
-    private String sellingPrice;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id")
     private Categories categoryId;
 
     @Column(name = "main_image_url")
     private String mainImageUrl;
+
+    @Column(name = "description")
+    private String description;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
@@ -64,14 +56,6 @@ public class Products {
 
     @Column(name = "slug")
     private String slug;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by_user_id", nullable = false)
-    private User createdByUserId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "updated_by_user_id", nullable = false)
-    private User updatedByUserId;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -94,7 +78,6 @@ public class Products {
         }
 
         updatedAt = now;
-
         if (this.name != null && (this.slug == null || this.slug.isBlank())) {
             String slugified = removeVietnameseAccents(this.name)
                     .toLowerCase()

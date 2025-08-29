@@ -8,6 +8,7 @@ import mstm.muasamthongminh.muasamthongminh.modules.shoprequest.model.ShopReques
 import java.time.LocalDateTime;
 
 public class ShopRequestMapper {
+
     public static ShopRequests toEntity(ShopRequestsDto dto, User user) {
         if (dto == null) return null;
 
@@ -22,6 +23,7 @@ public class ShopRequestMapper {
                 .taxCode(dto.getTaxCode())
                 .address(dto.getAddress())
                 .licenseFileUrl(dto.getLicenseFileUrl())
+                .note(dto.getNote())
                 .status(ShopStatus.PENDING)
                 .createAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -43,6 +45,7 @@ public class ShopRequestMapper {
         dto.setTaxCode(entity.getTaxCode());
         dto.setAddress(entity.getAddress());
         dto.setLicenseFileUrl(entity.getLicenseFileUrl());
+        dto.setNote(entity.getNote());
         dto.setStatus(entity.getStatus());
         dto.setCreatedDate(entity.getCreateAt());
         dto.setUpdatedDate(entity.getUpdatedAt());
@@ -50,7 +53,9 @@ public class ShopRequestMapper {
     }
 
     public static ShopRequestsDto toReject(ShopRequests reject) {
-        if (reject == null) return null;
+        if (reject == null) {
+            return null;
+        };
 
         ShopRequestsDto dto = new ShopRequestsDto();
         dto.setId(reject.getId());
@@ -59,5 +64,4 @@ public class ShopRequestMapper {
         dto.setNote(reject.getNote());
         return dto;
     }
-
 }

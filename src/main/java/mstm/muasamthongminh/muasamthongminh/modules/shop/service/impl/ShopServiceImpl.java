@@ -48,7 +48,6 @@ public class ShopServiceImpl implements ShopService {
         if (exists) {
             return ResponseEntity.ok(Map.of("message", "Bạn đã gửi yêu cầu trước đó. Yêu cầu sẽ được xét duyệt trong 1 - 2 ngày"));
         }
-
         // Upload logo
         if (shopDto.getLogoImage() != null && !shopDto.getLogoImage().isEmpty()) {
             try {
@@ -81,7 +80,6 @@ public class ShopServiceImpl implements ShopService {
             authUserRepository.save(user);
         }
 
-
         return ResponseEntity.ok(ShopMapper.toDto(saveRequests));
     }
 
@@ -90,6 +88,18 @@ public class ShopServiceImpl implements ShopService {
     public List<ShopDto> getAllShop() {
         List<Shop> shops = shopRepository.findAll();
         return shops.stream().map(ShopMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public Shop getShopById(Long shopId) {
+        return shopRepository.findById(shopId)
+                .orElseThrow(() -> new RuntimeException("Shop không tồn tại!"));
+    }
+
+    @Override
+    public Shop getShopByUserId(Long userId) {
+        return shopRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new RuntimeException("Người dùng chưa có shop!"));
     }
 
 }

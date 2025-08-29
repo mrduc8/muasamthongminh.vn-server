@@ -7,8 +7,14 @@ import java.util.List;
 
 public interface BankService {
     // Tạo ngân hàng từ người dùng.
-    ResponseEntity<?> createBank(Long userId, BankDto bankDto);
+    ResponseEntity<?> createBank(Long userId, Long shopId, BankDto bankDto);
 
     // Lấy tất cả tài khoản ngân hàng
     List<BankDto> getAllBank();
+
+    // Lấy theo userId
+    List<BankDto> getBankByUserId(Long userId);
+
+    // Lấy theo shopId
+    List<BankDto> getBankByShopId(Long shopId);
 }

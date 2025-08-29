@@ -9,7 +9,7 @@ public class ProductImageMapper {
         if (dto == null) return null;
         if (products == null) return null;
 
-        return ProductImages.builder()
+        return mstm.muasamthongminh.muasamthongminh.modules.products.model.ProductImages.builder()
                 .id(dto.getId())
                 .productId(products)
                 .imageUrl(dto.getImageUrl())

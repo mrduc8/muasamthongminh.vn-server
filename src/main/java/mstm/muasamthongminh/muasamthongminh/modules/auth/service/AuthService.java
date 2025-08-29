@@ -16,6 +16,7 @@ import mstm.muasamthongminh.muasamthongminh.modules.auth.model.User;
 import mstm.muasamthongminh.muasamthongminh.modules.auth.repository.AuthUserRepository;
 import mstm.muasamthongminh.muasamthongminh.modules.auth.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -100,8 +101,6 @@ public class AuthService {
         }
     }
 
-
-
     public UserDto getUserInfoFromToken(String token) {
         // 1. Trích xuất email (hoặc username) từ token
         String email = jwtUtils.extractUsername(token);
@@ -125,6 +124,23 @@ public class AuthService {
 
         user.setStatus(Status.ACTIVE);
         authUserRepository.save(user);
+    }
+
+    public void requestNewEmail(String token, String newEmail) {
+        String currentEmail = jwtUtils.extractUsername(token);
+
+        User user = authUserRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        if (checkEmailExists(newEmail)) {
+            throw new IllegalArgumentException("Email đã tồn tại");
+        }
+
+        user.setEmail(newEmail);
+        user.setStatus(Status.PENDING); // Cập nhật trạng thái
+        authUserRepository.save(user);
+
+        sendVerificationEmail(user); // Gửi tới email mới
     }
 
     public void register(RegisterRequest request) {
@@ -230,5 +246,4 @@ public class AuthService {
     private boolean isPasswordStrong(String password) {
         return password.length() >= 8;
     }
-
 }

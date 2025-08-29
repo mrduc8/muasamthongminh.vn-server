@@ -57,35 +57,55 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable()) // tắt CSRF
+                .csrf(csrf -> csrf.disable())
                 .cors(cors -> {
-                }) // bật CORS (cấu hình chi tiết bên ngoài)
+                })
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("api/auth/update-email").authenticated()
                         .requestMatchers("/api/addresses/**").authenticated()
+
+                        .requestMatchers("/api/shop-requests/detail").authenticated()
                         .requestMatchers("/api/shop-requests/").hasRole("ADMIN")
+                        .requestMatchers("api/shop-requests/my-shop").authenticated()
                         .requestMatchers("/api/shop-requests/create").authenticated()
                         .requestMatchers("/api/shop-requests/pending/").hasRole("ADMIN")
+                        .requestMatchers("api/shop-requests/pending/approve-all").hasRole("ADMIN")
                         .requestMatchers("/api/shop-requests/\\\\d+/approved").hasRole("ADMIN")
                         .requestMatchers("/api/shop-requests/\\\\d+/rejected").hasRole("ADMIN")
                         .requestMatchers("/api/shop/").hasRole("ADMIN")
                         .requestMatchers("api/shop/create").authenticated()
+                        .requestMatchers("api/shop/**").authenticated()
+
                         .requestMatchers("/api/bank-account/").hasRole("ADMIN")
+
+                        .requestMatchers("/api/card/").authenticated()
+
                         .requestMatchers("/api/bank-account/create").authenticated()
+                        .requestMatchers("/api/bank-account/user").authenticated()
+                        .requestMatchers("/api/bank-account/shop/").authenticated()
+                        .requestMatchers("/api/bank-account/\\\\d+/create-shop").authenticated()
+
                         .requestMatchers("/api/user/**").authenticated()
                         .requestMatchers("/api/user/user/").hasRole("ADMIN")
                         .requestMatchers("/api/user/\\\\d+/update-role").hasRole("ADMIN")
                         .requestMatchers("/api/user/\\\\d+/update-details").hasRole("ADMIN")
                         .requestMatchers("/api/user/\\\\d+/delete-user").hasRole("ADMIN")
+
                         .requestMatchers("api/categories/**").permitAll()
+                        .requestMatchers("api/categories/search").authenticated()
                         .requestMatchers("/api/categories/create").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers("api/categories/update/\\\\d+").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers("api/categories/\\\\d+").hasAnyRole("ADMIN", "SELLER")
+
                         .requestMatchers("api/brands/**").permitAll()
                         .requestMatchers("api/brands/created").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers("/api/new/**").hasAnyRole("ADMIN", "SELLER")
-                        .requestMatchers("/api/products/**").permitAll()
+
+                        .requestMatchers("/api/products/public/**").permitAll()
+                        .requestMatchers("/api/products/**").authenticated()
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sm -> sm

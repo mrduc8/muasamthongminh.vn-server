@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class BankDto {
     private Long id;
     private Long userId;
+    private Long shopId;
     private String bankName;
     private String accountNumber;
     private String accountHolder;

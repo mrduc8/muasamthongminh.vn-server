@@ -10,6 +10,8 @@ import mstm.muasamthongminh.muasamthongminh.modules.bankaccount.mapper.BankMappe
 import mstm.muasamthongminh.muasamthongminh.modules.bankaccount.model.Bank;
 import mstm.muasamthongminh.muasamthongminh.modules.bankaccount.repository.BankRepsitory;
 import mstm.muasamthongminh.muasamthongminh.modules.bankaccount.service.BankService;
+import mstm.muasamthongminh.muasamthongminh.modules.shop.model.Shop;
+import mstm.muasamthongminh.muasamthongminh.modules.shop.repository.ShopRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,17 +26,24 @@ public class BankImplService implements BankService {
     @Autowired private BankRepsitory bankRepsitory;
     @Autowired private AuthUserRepository authUserRepository;
     @Autowired private MailService mailService;
+    @Autowired private ShopRepository shopRepository;
 
     @Override
-    public ResponseEntity<?> createBank(Long userId, BankDto bankDto) {
+    public ResponseEntity<?> createBank(Long userId,  Long shopId, BankDto bankDto) {
         User user = authUserRepository.findById(userId).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
 
-        boolean exists = bankRepsitory.existsByUserId(userId);
-        if (exists) {
-            return ResponseEntity.ok(Map.of("message", "Bạn đã thêm một tài khoản. Vui lòng liên hệ Admin"));
+//        boolean exists = bankRepsitory.existsByUserId(userId);
+//        if (exists) {
+//            return ResponseEntity.ok(Map.of("message", "Bạn đã thêm một tài khoản. Vui lòng liên hệ Admin"));
+//        }
+
+        Shop shop = null;
+        if (shopId != null) {
+            shop = shopRepository.findById(shopId)
+                    .orElseThrow(() -> new RuntimeException("Shop không tồn tại"));
         }
 
-        Bank req = BankMapper.toEntity(bankDto, user);
+        Bank req = BankMapper.toEntity(bankDto, user, shop);
         Bank savedBank = bankRepsitory.save(req);
 
         // Gửi xác nhận về cho người dùng
@@ -47,6 +56,18 @@ public class BankImplService implements BankService {
     @Override
     public List<BankDto> getAllBank(){
         List<Bank> banks = bankRepsitory.findAll();
+        return banks.stream().map(BankMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BankDto> getBankByUserId(Long userId) {
+        List<Bank> banks = bankRepsitory.findByUserId(userId);
+        return banks.stream().map(BankMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BankDto> getBankByShopId(Long shopId) {
+        List<Bank> banks = bankRepsitory.findByShopId(shopId);
         return banks.stream().map(BankMapper::toDto).collect(Collectors.toList());
     }
 }

@@ -1,6 +1,5 @@
 package mstm.muasamthongminh.muasamthongminh.modules.products.mapper;
 
-import mstm.muasamthongminh.muasamthongminh.modules.auth.model.User;
 import mstm.muasamthongminh.muasamthongminh.modules.products.dto.ProductVariantDto;
 import mstm.muasamthongminh.muasamthongminh.modules.products.enums.ProductVariantStatus;
 import mstm.muasamthongminh.muasamthongminh.modules.products.model.ProductVariants;
@@ -14,10 +13,9 @@ public class ProductVariantMapper {
                 .id(dto.getId())
                 .productId(products)
                 .sku(dto.getSku())
-                .price(dto.getPrice())
-                .quantityInStock(dto.getQuantityInStock())
-                .imageUrl(dto.getImageUrl())
-                .weight(dto.getWeight())
+                .originalPrice(dto.getOriginalPrice())
+                .salePrice(dto.getSalePrice())
+                .stockQuantity(dto.getStockQuantity())
                 .status(ProductVariantStatus.ACTIVE)
                 .createdAt(dto.getCreatedAt())
                 .updatedAt(dto.getUpdatedAt())
@@ -28,14 +26,12 @@ public class ProductVariantMapper {
         if (entity == null) return null;
 
         ProductVariantDto dto = new ProductVariantDto();
-
         dto.setId(entity.getId());
         dto.setProductId(entity.getProductId() != null ? entity.getProductId().getId() : null);
         dto.setSku(entity.getSku());
-        dto.setPrice(entity.getPrice());
-        dto.setQuantityInStock(entity.getQuantityInStock());
-        dto.setImageUrl(entity.getImageUrl());
-        dto.setWeight(entity.getWeight());
+        dto.setOriginalPrice(entity.getOriginalPrice());
+        dto.setSalePrice(entity.getSalePrice());
+        dto.setStockQuantity(entity.getStockQuantity());
         dto.setStatus(entity.getStatus());
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());

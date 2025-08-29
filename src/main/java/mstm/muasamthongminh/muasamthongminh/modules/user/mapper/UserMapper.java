@@ -29,6 +29,7 @@ public class UserMapper {
         userDto.setId(user.getId());
         userDto.setAvatar(user.getAvatar());
         userDto.setName(user.getName());
+        userDto.setSex(user.getSex());
         userDto.setBirthday(user.getBirthday());
         userDto.setEmail(user.getEmail());
         userDto.setPhone(user.getPhone());

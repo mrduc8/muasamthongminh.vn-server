@@ -23,6 +23,14 @@ public class AttributeValues {
     @JoinColumn(name = "attribute_id", nullable = false)
     private Attributes attributeId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Products product;
+
+    @ManyToOne
+    @JoinColumn(name = "variant_id")
+    private ProductVariants variant;
+
     @Column(name = "value")
     private String value;
 

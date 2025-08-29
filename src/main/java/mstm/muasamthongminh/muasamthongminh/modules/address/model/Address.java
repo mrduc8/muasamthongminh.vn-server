@@ -17,7 +17,13 @@ public class Address {
     private Long id;
     private String name;
     private String phone;
+    private String provinceCity;
+    private String district;
+    private String ward;
+    private String detailedAddress;
+
     private String address;
+
     private Boolean isDefault = false;
 
     @ManyToOne(fetch = FetchType.LAZY)

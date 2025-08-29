@@ -1,7 +1,5 @@
 package mstm.muasamthongminh.muasamthongminh.modules.shoprequest.model;
 
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import mstm.muasamthongminh.muasamthongminh.common.enums.ShopStatus;

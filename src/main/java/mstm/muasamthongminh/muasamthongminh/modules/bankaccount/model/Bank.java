@@ -3,6 +3,7 @@ package mstm.muasamthongminh.muasamthongminh.modules.bankaccount.model;
 import jakarta.persistence.*;
 import lombok.*;
 import mstm.muasamthongminh.muasamthongminh.modules.auth.model.User;
+import mstm.muasamthongminh.muasamthongminh.modules.shop.model.Shop;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +22,10 @@ public class Bank {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shop_id")
+    private Shop shop;
 
     @Column(name = "bank_name", length = 100, nullable = false)
     private String bankName;

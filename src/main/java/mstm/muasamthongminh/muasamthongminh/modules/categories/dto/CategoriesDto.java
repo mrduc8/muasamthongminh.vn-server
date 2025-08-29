@@ -19,8 +19,10 @@ public class CategoriesDto {
     private CategoryStatus status;
     private String imageUrl;
     private MultipartFile image;
+
     private String description;
     private String metaTitle;
+
     private String metaDescription;
     private Long createdByUserId;
     private Long updatedByUserId;

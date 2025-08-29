@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/categories")
@@ -25,6 +27,11 @@ public class CategoriesController {
     @GetMapping
     public ResponseEntity<?> getCategoryTree(){
         return ResponseEntity.ok(categoriesService.getCategoryTree());
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<CategoriesDto>> getActiveCategories() {
+        return ResponseEntity.ok(categoriesService.getActiveCategories());
     }
 
     //Tạo danh mục
@@ -54,4 +61,8 @@ public class CategoriesController {
         return categoriesService.deleteCategories(id, user);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<CategoriesDto>> searchCategories(@RequestParam String keyword) {
+        return ResponseEntity.ok(categoriesService.searchCategories(keyword));
+    }
 }

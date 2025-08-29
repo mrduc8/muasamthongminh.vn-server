@@ -16,17 +16,41 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/bank-account")
 public class BankController {
-    @Autowired private BankService bankService;
+    @Autowired
+    private BankService bankService;
 
     @PostMapping("/create")
     public ResponseEntity<?> createBank(@RequestBody BankDto bankDto, Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getUser().getId();
-        return bankService.createBank(userId, bankDto);
+        return bankService.createBank(userId, null, bankDto);
+    }
+
+    @PostMapping("/{shopId}/create-shop")
+    public ResponseEntity<?> createShopBank(
+            @PathVariable Long shopId,
+            @RequestBody BankDto bankDto,
+            Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getUser().getId();
+        return bankService.createBank(userId, shopId, bankDto);
     }
 
     @GetMapping
     public List<BankDto> getAllBank() {
         return bankService.getAllBank();
+    }
+
+    @GetMapping("/user")
+    public List<BankDto> getBankByUser(Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getUser().getId();
+        return bankService.getBankByUserId(userId);
+    }
+
+    // Lấy theo shopId (tài khoản shop)
+    @GetMapping("/shop/{shopId}")
+    public List<BankDto> getBankByShop(@PathVariable Long shopId) {
+        return bankService.getBankByShopId(shopId);
     }
 }
