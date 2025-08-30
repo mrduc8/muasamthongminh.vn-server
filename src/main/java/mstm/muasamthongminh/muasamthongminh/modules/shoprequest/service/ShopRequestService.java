@@ -31,4 +31,5 @@ public interface ShopRequestService {
 
     List<ShopRequestsDto> approveAllPending();
 
+    ShopRequestsDetailDto updateDetail(Long userId, ShopRequestsDetailDto input);
 }

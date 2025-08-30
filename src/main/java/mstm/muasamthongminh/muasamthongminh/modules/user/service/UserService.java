@@ -2,6 +2,7 @@ package mstm.muasamthongminh.muasamthongminh.modules.user.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import mstm.muasamthongminh.muasamthongminh.common.enums.Role;
 import mstm.muasamthongminh.muasamthongminh.modules.auth.dto.UserDto;
@@ -38,8 +39,9 @@ public class UserService {
     @Autowired private Cloudinary cloudinary;
 
     // Lấy tất cả danh sách user
-    public List<UserDto> getUser(){
-        return userRepository.findAll().stream().map(UserMapper::toDto).collect(Collectors.toList());
+    public List<UserDto> getUser() {
+        return userRepository.findAllWithRoles()
+                .stream().map(UserMapper::toDto).toList();
     }
 
     // Cập nhập Role
@@ -167,5 +169,62 @@ public class UserService {
         userRepository.delete(user);
 
         return ResponseEntity.ok(Map.of("message", "Xoá người dùng thành công"));
+    }
+
+
+    @Transactional
+    public ResponseEntity<?> adminUpdateUser(Long userId, UserDto userDto, MultipartFile avatarFile) {
+        User user = userRepository.findByIdWithRoles(userId)
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        if (userDto.getEmail() != null && !userDto.getEmail().equalsIgnoreCase(user.getEmail())) {
+            userRepository.findByEmail(userDto.getEmail()).ifPresent(exist -> {
+                if (!exist.getId().equals(userId)) {
+                    throw new RuntimeException("Email đã được sử dụng bởi tài khoản khác");
+                }
+            });
+            user.setEmail(userDto.getEmail());
+        }
+
+        if (userDto.getName() != null) user.setName(userDto.getName());
+        if (userDto.getPhone() != null) user.setPhone(userDto.getPhone());
+        if (userDto.getSex() != null) user.setSex(userDto.getSex());
+        if (userDto.getBirthday() != null) user.setBirthday(userDto.getBirthday());
+        if (userDto.getStatus() != null) user.setStatus(userDto.getStatus());
+
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            try {
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                        avatarFile.getBytes(),
+                        ObjectUtils.asMap("folder", "muasamthongminh/avatars")
+                );
+                String avatarUrl = (String) uploadResult.get("secure_url");
+                user.setAvatar(avatarUrl);
+            } catch (Exception e) {
+                throw new RuntimeException("Lỗi khi upload avatar: " + e.getMessage(), e);
+            }
+        }
+
+        // 4) Cập nhật ROLES nếu DTO có gửi (thay toàn bộ)
+        if (userDto.getRoles() != null) {
+            List<Role> requested = userDto.getRoles();
+
+            // Lấy entity Roles tương ứng
+            List<Roles> entities = roleRepository.findByNameIn(requested);
+
+            // Kiểm tra thiếu role nào trong DB
+            if (entities.size() != requested.size()) {
+                List<Role> missing = requested.stream()
+                        .filter(er -> entities.stream().noneMatch(e -> e.getName() == er))
+                        .toList();
+                throw new RuntimeException("Các vai trò không tồn tại trong DB: " + missing);
+            }
+
+            user.setRoles(entities); // ghi đè toàn bộ
+        }
+
+        // 5) Lưu & trả về DTO (đã map roles -> enum)
+        user = userRepository.save(user);
+        return ResponseEntity.ok(UserMapper.toDto(user));
     }
 }

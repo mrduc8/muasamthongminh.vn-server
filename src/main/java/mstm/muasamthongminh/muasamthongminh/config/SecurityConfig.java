@@ -92,6 +92,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/\\\\d+/update-role").hasRole("ADMIN")
                         .requestMatchers("/api/user/\\\\d+/update-details").hasRole("ADMIN")
                         .requestMatchers("/api/user/\\\\d+/delete-user").hasRole("ADMIN")
+                        .requestMatchers("/api/user/admin/**").hasRole("ADMIN")
 
                         .requestMatchers("api/categories/**").permitAll()
                         .requestMatchers("api/categories/search").authenticated()

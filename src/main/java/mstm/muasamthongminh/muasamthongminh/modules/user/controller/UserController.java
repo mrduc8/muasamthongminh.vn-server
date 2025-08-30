@@ -61,6 +61,16 @@ public class UserController {
         return userService.updateDetailsUser(userId, userDto, avatar);
     }
 
+
+    @PutMapping(value = "/admin/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> adminUpdateUser(
+            @PathVariable("id") Long id,
+            @RequestPart("user") UserDto userDto, // JSON
+            @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile // optional file
+    ) {
+        return userService.adminUpdateUser(id, userDto, avatarFile);
+    }
+
     // Cập nhập user
     @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateUser(@CookieValue(value = "token", required = false) String token, @RequestParam String name, @RequestParam String phone, @RequestParam(required = false) String sex,

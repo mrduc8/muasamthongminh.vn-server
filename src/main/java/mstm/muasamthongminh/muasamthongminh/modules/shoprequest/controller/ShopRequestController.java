@@ -1,6 +1,8 @@
 package mstm.muasamthongminh.muasamthongminh.modules.shoprequest.controller;
 
 import mstm.muasamthongminh.muasamthongminh.modules.auth.security.CustomUserDetails;
+import mstm.muasamthongminh.muasamthongminh.modules.bankaccount.dto.BankDto;
+import mstm.muasamthongminh.muasamthongminh.modules.shop.dto.ShopDto;
 import mstm.muasamthongminh.muasamthongminh.modules.shoprequest.dto.ShopRequestsDetailDto;
 import mstm.muasamthongminh.muasamthongminh.modules.shoprequest.dto.ShopRequestsDto;
 import mstm.muasamthongminh.muasamthongminh.modules.shoprequest.service.ShopRequestService;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
@@ -56,6 +59,32 @@ public class ShopRequestController {
 
         return ResponseEntity.ok(detailOpt.get());
     }
+
+    @PutMapping(value = "/me/detail", consumes = {"multipart/form-data"})
+    public ResponseEntity<ShopRequestsDetailDto> updateMyShopRequestDetailForm(
+            @RequestPart(name = "shop",          required = false) ShopDto shopDto,
+            @RequestPart(name = "bank",          required = false) List<BankDto> bankDtos,
+            @RequestPart(name = "shop_requests", required = false) ShopRequestsDto shopRequestsDto,
+            @RequestPart(name = "logoImage",     required = false) MultipartFile logoImage,
+            @RequestPart(name = "bannerImage",   required = false) MultipartFile bannerImage,
+            Authentication authentication
+    ) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = principal.getUser().getId();
+
+        if (shopDto != null) {
+            if (logoImage != null && !logoImage.isEmpty())   shopDto.setLogoImage(logoImage);
+            if (bannerImage != null && !bannerImage.isEmpty()) shopDto.setBannerImage(bannerImage);
+        }
+
+        ShopRequestsDetailDto body = new ShopRequestsDetailDto();
+        body.setShop(shopDto);
+        body.setBank(bankDtos);
+        body.setShop_requests(shopRequestsDto);
+
+        return ResponseEntity.ok(shopRequestService.updateDetail(userId, body));
+    }
+
 
     @PutMapping("/pending/approve-all")
     public ResponseEntity<Map<String, Object>> approveAllPending() {

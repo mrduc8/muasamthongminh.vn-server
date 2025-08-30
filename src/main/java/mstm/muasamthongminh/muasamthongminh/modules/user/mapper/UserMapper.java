@@ -1,7 +1,11 @@
 package mstm.muasamthongminh.muasamthongminh.modules.user.mapper;
 
+import mstm.muasamthongminh.muasamthongminh.common.enums.Role;
 import mstm.muasamthongminh.muasamthongminh.modules.auth.dto.UserDto;
+import mstm.muasamthongminh.muasamthongminh.modules.auth.model.Roles;
 import mstm.muasamthongminh.muasamthongminh.modules.auth.model.User;
+
+import java.util.List;
 
 public class UserMapper {
     public static User toEntity(UserDto dto) {
@@ -17,7 +21,6 @@ public class UserMapper {
         user.setPhone(dto.getPhone());
         user.setAddresses(dto.getAddresses());
         user.setStatus(dto.getStatus());
-        user.setRoles(dto.getRoles());
         user.setCreatedAt(dto.getCreatedAt());
         user.setUpdatedAt(dto.getUpdatedAt());
         return user;
@@ -35,7 +38,12 @@ public class UserMapper {
         userDto.setPhone(user.getPhone());
         userDto.setAddresses(user.getAddresses());
         userDto.setStatus(user.getStatus());
-        user.setRoles(userDto.getRoles());
+        List<Role> roleEnums = (user.getRoles() == null)
+                ? List.of()
+                : user.getRoles().stream()
+                .map(Roles::getName)
+                .toList();
+        userDto.setRoles(roleEnums);
         userDto.setCreatedAt(user.getCreatedAt());
         userDto.setUpdatedAt(user.getUpdatedAt());
         return userDto;
@@ -52,7 +60,6 @@ public class UserMapper {
         user.setPhone(userDto.getPhone());
         user.setAddresses(userDto.getAddresses());
         user.setStatus(userDto.getStatus());
-        user.setRoles(userDto.getRoles());
         user.setCreatedAt(userDto.getCreatedAt());
         user.setUpdatedAt(userDto.getUpdatedAt());
 
