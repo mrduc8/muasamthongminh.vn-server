@@ -107,6 +107,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/products/public/**").permitAll()
                         .requestMatchers("/api/products/**").authenticated()
 
+                        .requestMatchers("/api/orders/all").hasRole("ADMIN")
+
+                        .requestMatchers("/api/shippings/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sm -> sm

@@ -9,6 +9,7 @@ import mstm.muasamthongminh.muasamthongminh.modules.shop.model.Shop;
 
 import java.text.Normalizer;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Entity
@@ -62,6 +63,10 @@ public class Products {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductVariants> variants;
+
 
     private String removeVietnameseAccents(String input) {
         String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
