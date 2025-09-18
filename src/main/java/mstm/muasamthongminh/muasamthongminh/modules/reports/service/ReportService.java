@@ -1,6 +1,11 @@
 package mstm.muasamthongminh.muasamthongminh.modules.reports.service;
 
 import lombok.RequiredArgsConstructor;
+import mstm.muasamthongminh.muasamthongminh.modules.payment.enums.OrderStatus;
+import mstm.muasamthongminh.muasamthongminh.modules.payment.enums.PaymentStatus;
+import mstm.muasamthongminh.muasamthongminh.modules.payment.model.OrderItem;
+import mstm.muasamthongminh.muasamthongminh.modules.payment.model.Orders;
+import mstm.muasamthongminh.muasamthongminh.modules.payment.repository.OrderRepository;
 import mstm.muasamthongminh.muasamthongminh.modules.reports.dto.LowStockProductResponse;
 import mstm.muasamthongminh.muasamthongminh.modules.reports.dto.RevenueReportResponse;
 import mstm.muasamthongminh.muasamthongminh.modules.reports.dto.TopSellingProductResponse;
@@ -10,22 +15,33 @@ import mstm.muasamthongminh.muasamthongminh.modules.shop.repository.ShopReposito
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class ReportService {
     private final ReportRepository reportRepository;
     private final ShopRepository shopRepository;
+    private final OrderRepository orderRepository;
 
     public List<RevenueReportResponse> getRevenueByDayForShop(Long userId) {
         Shop shop = shopRepository.findByUser_Id(userId)
                 .orElseThrow(() -> new RuntimeException("User chưa có shop"));
 
-        return reportRepository.getRevenueByDayForShop(shop.getId()).stream()
+        List<Object[]> results = reportRepository.getRevenueByDayForShop(
+                OrderStatus.COMPLETED,
+                PaymentStatus.PAID,
+                shop.getId()
+        );
+
+        return results.stream()
                 .map(r -> new RevenueReportResponse(
                         r[0].toString(),
-                        ((Number) r[1]).longValue()
+                        (BigDecimal) r[1]
                 ))
                 .toList();
     }

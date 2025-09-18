@@ -23,7 +23,6 @@ public class AddressService {
         return addressRepository.findByUser(user);
     }
 
-
     public Address createAddress(Address address, User user) {
         address.setUser(user);
         String fullAddress = String.join(", ",

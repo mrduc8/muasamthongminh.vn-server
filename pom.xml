@@ -40,6 +40,12 @@
 			<version>1.5.5.Final</version> <!-- hoặc bản mới hơn -->
 		</dependency>
 
+		<dependency>
+			<groupId>com.paypal.sdk</groupId>
+			<artifactId>rest-api-sdk</artifactId>
+			<version>1.14.0</version>
+		</dependency>
+
 		<!-- Annotation processor -->
 		<dependency>
 			<groupId>org.mapstruct</groupId>

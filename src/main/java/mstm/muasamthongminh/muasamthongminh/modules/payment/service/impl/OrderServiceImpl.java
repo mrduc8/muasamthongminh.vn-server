@@ -30,7 +30,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new RuntimeException("User chưa có shop"));
         List<Orders> orders = orderRepository.findOrdersByShopId(shop.getId());
         return orders.stream()
-                .map(OrderMapper::toResponse) // map sang OrderResponse
+                .map(OrderMapper::toResponse)
                 .toList();
     }
 

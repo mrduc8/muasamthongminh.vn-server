@@ -21,7 +21,9 @@ public class ReportController {
     @GetMapping("/revenue")
     public ResponseEntity<List<RevenueReportResponse>> getRevenue(Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        return ResponseEntity.ok(reportService.getRevenueByDayForShop(userDetails.getUser().getId()));
+        Long userId = userDetails.getUser().getId();
+
+        return ResponseEntity.ok(reportService.getRevenueByDayForShop(userId));
     }
 
     @GetMapping("/low-stock")

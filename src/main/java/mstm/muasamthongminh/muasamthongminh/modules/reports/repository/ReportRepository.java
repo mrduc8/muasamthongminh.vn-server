@@ -1,5 +1,7 @@
 package mstm.muasamthongminh.muasamthongminh.modules.reports.repository;
 
+import mstm.muasamthongminh.muasamthongminh.modules.payment.enums.OrderStatus;
+import mstm.muasamthongminh.muasamthongminh.modules.payment.enums.PaymentStatus;
 import mstm.muasamthongminh.muasamthongminh.modules.products.model.Products;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,14 +16,26 @@ import java.util.List;
 public interface ReportRepository extends JpaRepository<Products, Long> {
 
     // 1. Doanh thu theo ngày cho 1 shop
-    @Query("SELECT DATE(o.createdAt), SUM(o.grandTotal) " +
-            "FROM Orders o " +
-            "JOIN o.orderItems i " +
-            "JOIN i.productId p " +
-            "WHERE o.orderStatus = 'COMPLETED' " +
-            "AND p.shopId.id = :shopId " +
-            "GROUP BY DATE(o.createdAt)")
-    List<Object[]> getRevenueByDayForShop(@Param("shopId") Long shopId);
+// Doanh thu theo ngày cho 1 shop
+    @Query("""
+    SELECT DATE(o.createdAt), SUM(o.grandTotal)
+    FROM Orders o
+    WHERE o.orderStatus = :orderStatus
+    AND o.paymentStatus = :paymentStatus
+    AND EXISTS (
+        SELECT 1 FROM o.orderItems i
+        WHERE i.productId.shopId.id = :shopId
+    )
+    GROUP BY DATE(o.createdAt)
+    ORDER BY DATE(o.createdAt)
+""")
+    List<Object[]> getRevenueByDayForShop(
+            @Param("orderStatus") OrderStatus orderStatus,
+            @Param("paymentStatus") PaymentStatus paymentStatus,
+            @Param("shopId") Long shopId
+    );
+
+
 
     // 2. Sản phẩm tồn kho sắp hết theo shop
     @Query("SELECT p.id, p.name, SUM(v.stockQuantity) " +

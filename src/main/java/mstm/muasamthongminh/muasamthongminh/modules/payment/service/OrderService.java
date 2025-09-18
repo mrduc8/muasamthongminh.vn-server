@@ -11,7 +11,7 @@ public interface OrderService {
     List<OrderResponse> getOrdersForLoggedInShop(Long userId);
 
     OrderResponse confirmOrder(Long orderId, Long userId);
-    // 🆕 Lấy tất cả đơn hàng trong hệ thống
+
     List<OrderResponse> getAllOrders();
 
 }

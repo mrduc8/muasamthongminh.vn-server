@@ -1,5 +1,8 @@
 package mstm.muasamthongminh.muasamthongminh.modules.payment.service.impl;
 
+import com.paypal.api.payments.*;
+import com.paypal.base.rest.APIContext;
+import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
 import mstm.muasamthongminh.muasamthongminh.modules.address.model.Address;
 import mstm.muasamthongminh.muasamthongminh.modules.address.repository.AddressRepository;
@@ -43,6 +46,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final ShippingHistoryRepository historyRepo;
     private final ProductVariantsRepository variantRepo;
     private final CartServiceImpl cartService;
+    private final APIContext apiContext;
 
     @Override
     public CheckoutResponse checkout(CheckoutRequest req, Long userId) {
@@ -159,7 +163,40 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private String callPaypalApi(Orders order) {
-        // TODO: tích hợp PayPal
-        return "https://paypal.com/checkout?orderId=" + order.getId();
+        BigDecimal exchangeRate = new BigDecimal("26155");
+        BigDecimal amountUsd = order.getGrandTotal().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_UP);
+
+        Amount amount = new Amount();
+        amount.setCurrency("USD");
+        amount.setTotal(amountUsd.toString());
+
+        Transaction transaction = new Transaction();
+        transaction.setDescription("Thanh toán đơn hàng #" + order.getId());
+        transaction.setAmount(amount);
+
+        Payer payer = new Payer();
+        payer.setPaymentMethod("paypal");
+
+        RedirectUrls redirectUrls = new RedirectUrls();
+        redirectUrls.setCancelUrl("http://localhost:8080/api/payments/paypal/cancel");
+        redirectUrls.setReturnUrl("http://localhost:8080/api/payments/paypal/success");
+
+        Payment payment = new Payment();
+        payment.setIntent("sale");
+        payment.setPayer(payer);
+        payment.setTransactions(java.util.List.of(transaction));
+        payment.setRedirectUrls(redirectUrls);
+
+        try {
+            Payment createdPayment = payment.create(apiContext);
+            for (Links link : createdPayment.getLinks()) {
+                if (link.getRel().equals("approval_url")) {
+                    return link.getHref(); // link redirect PayPal
+                }
+            }
+        } catch (PayPalRESTException e) {
+            throw new RuntimeException("Lỗi tạo PayPal Payment: " + e.getMessage());
+        }
+        return null;
     }
 }
