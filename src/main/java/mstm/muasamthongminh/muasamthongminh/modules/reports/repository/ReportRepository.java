@@ -10,52 +10,95 @@ import org.springframework.stereotype.Repository;
 
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface ReportRepository extends JpaRepository<Products, Long> {
 
     // 1. Doanh thu theo ngày cho 1 shop
-// Doanh thu theo ngày cho 1 shop
+    // Doanh thu theo ngày cho 1 shop
+    @Query("""
+                SELECT DATE(o.createdAt), SUM(o.grandTotal)
+                FROM Orders o
+                WHERE o.orderStatus = :orderStatus
+                AND o.paymentStatus = :paymentStatus
+                AND EXISTS (
+                    SELECT 1 FROM o.orderItems i
+                    WHERE i.productId.shopId.id = :shopId
+                )
+                GROUP BY DATE(o.createdAt)
+                ORDER BY DATE(o.createdAt)
+            """)
+    List<Object[]> getRevenueByDayForShop(@Param("orderStatus") OrderStatus orderStatus, @Param("paymentStatus") PaymentStatus paymentStatus, @Param("shopId") Long shopId);
+
+
+    // 2. Sản phẩm tồn kho sắp hết theo shop
+    @Query("SELECT p.id, p.name, SUM(v.stockQuantity) " + "FROM Products p JOIN p.variants v " + "WHERE p.shopId.id = :shopId " + "GROUP BY p.id, p.name " + "HAVING SUM(v.stockQuantity) < :threshold")
+    List<Object[]> getLowStockProductsForShop(@Param("shopId") Long shopId, @Param("threshold") int threshold);
+
+    // 3. Top sản phẩm bán chạy theo shop
+    @Query("SELECT i.productId.id, i.nameSnapshot, SUM(i.quantity) as totalSold " + "FROM OrderItem i JOIN i.orderId o " + "JOIN i.productId p " + "WHERE o.orderStatus = 'COMPLETED' " + "AND p.shopId.id = :shopId " + "GROUP BY i.productId.id, i.nameSnapshot " + "ORDER BY totalSold DESC")
+    List<Object[]> getTopSellingProductsForShop(@Param("shopId") Long shopId, Pageable pageable);
+
+    // 1. Doanh thu toàn hệ thống
+    @Query("""
+                SELECT DATE(o.createdAt), SUM(o.grandTotal)
+                FROM Orders o
+                WHERE o.orderStatus = :orderStatus
+                  AND o.paymentStatus = :paymentStatus
+                GROUP BY DATE(o.createdAt)
+                ORDER BY DATE(o.createdAt)
+            """)
+    List<Object[]> getRevenueByDayForSystem(
+            @Param("orderStatus") OrderStatus orderStatus,
+            @Param("paymentStatus") PaymentStatus paymentStatus
+    );
+
+    // 2. Sản phẩm tồn kho sắp hết toàn hệ thống
+    @Query("""
+                SELECT p.id, p.name, SUM(v.stockQuantity)
+                FROM Products p
+                JOIN p.variants v
+                GROUP BY p.id, p.name
+                HAVING SUM(v.stockQuantity) < :threshold
+            """)
+    List<Object[]> getLowStockProductsForSystem(
+            @Param("threshold") int threshold
+    );
+
+    // 3. Top sản phẩm bán chạy toàn hệ thống
+    @Query("""
+                SELECT p.id, i.nameSnapshot, SUM(i.quantity) as totalSold
+                FROM OrderItem i
+                JOIN i.orderId o
+                JOIN i.productId p
+                WHERE o.orderStatus = :orderStatus
+                  AND o.paymentStatus = :paymentStatus
+                GROUP BY p.id, i.nameSnapshot
+                ORDER BY totalSold DESC
+            """)
+    List<Object[]> getTopSellingProductsForSystem(
+            @Param("orderStatus") OrderStatus orderStatus,
+            @Param("paymentStatus") PaymentStatus paymentStatus,
+            Pageable pageable
+    );
+
     @Query("""
     SELECT DATE(o.createdAt), SUM(o.grandTotal)
     FROM Orders o
     WHERE o.orderStatus = :orderStatus
-    AND o.paymentStatus = :paymentStatus
-    AND EXISTS (
-        SELECT 1 FROM o.orderItems i
-        WHERE i.productId.shopId.id = :shopId
-    )
+      AND o.paymentStatus = :paymentStatus
+      AND DATE(o.createdAt) BETWEEN :from AND :to
     GROUP BY DATE(o.createdAt)
     ORDER BY DATE(o.createdAt)
 """)
-    List<Object[]> getRevenueByDayForShop(
+    List<Object[]> getRevenueByDayForSystemBetween(
             @Param("orderStatus") OrderStatus orderStatus,
             @Param("paymentStatus") PaymentStatus paymentStatus,
-            @Param("shopId") Long shopId
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to
     );
-
-
-
-    // 2. Sản phẩm tồn kho sắp hết theo shop
-    @Query("SELECT p.id, p.name, SUM(v.stockQuantity) " +
-            "FROM Products p JOIN p.variants v " +
-            "WHERE p.shopId.id = :shopId " +
-            "GROUP BY p.id, p.name " +
-            "HAVING SUM(v.stockQuantity) < :threshold")
-    List<Object[]> getLowStockProductsForShop(@Param("shopId") Long shopId,
-                                              @Param("threshold") int threshold);
-
-    // 3. Top sản phẩm bán chạy theo shop
-    @Query("SELECT i.productId.id, i.nameSnapshot, SUM(i.quantity) as totalSold " +
-            "FROM OrderItem i JOIN i.orderId o " +
-            "JOIN i.productId p " +
-            "WHERE o.orderStatus = 'COMPLETED' " +
-            "AND p.shopId.id = :shopId " +
-            "GROUP BY i.productId.id, i.nameSnapshot " +
-            "ORDER BY totalSold DESC")
-    List<Object[]> getTopSellingProductsForShop(@Param("shopId") Long shopId,
-                                                Pageable pageable);
 }
 
 

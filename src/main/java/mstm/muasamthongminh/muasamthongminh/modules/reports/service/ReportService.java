@@ -71,5 +71,72 @@ public class ReportService {
                 ))
                 .toList();
     }
+
+    /**
+     * Báo cáo doanh thu toàn hệ thống theo ngày
+     */
+    public List<RevenueReportResponse> getRevenueByDayForSystem() {
+        List<Object[]> results = reportRepository.getRevenueByDayForSystem(
+                OrderStatus.COMPLETED,
+                PaymentStatus.PAID
+        );
+
+        return results.stream()
+                .map(r -> new RevenueReportResponse(
+                        r[0].toString(),
+                        (BigDecimal) r[1]
+                ))
+                .toList();
+    }
+
+    /**
+     * Báo cáo doanh thu toàn hệ thống theo ngày, có lọc khoảng thời gian
+     */
+    public List<RevenueReportResponse> getRevenueByDayForSystemBetween(LocalDate from, LocalDate to) {
+        List<Object[]> results = reportRepository.getRevenueByDayForSystemBetween(
+                OrderStatus.COMPLETED,
+                PaymentStatus.PAID,
+                from,
+                to
+        );
+
+        return results.stream()
+                .map(r -> new RevenueReportResponse(
+                        r[0].toString(),
+                        (BigDecimal) r[1]
+                ))
+                .toList();
+    }
+
+
+    /**
+     * Báo cáo sản phẩm sắp hết hàng toàn hệ thống
+     */
+    public List<LowStockProductResponse> getLowStockProductsForSystem(int threshold) {
+        return reportRepository.getLowStockProductsForSystem(threshold).stream()
+                .map(r -> new LowStockProductResponse(
+                        ((Number) r[0]).longValue(),
+                        (String) r[1],
+                        ((Number) r[2]).intValue()
+                ))
+                .toList();
+    }
+
+    /**
+     * Báo cáo top sản phẩm bán chạy toàn hệ thống
+     */
+    public List<TopSellingProductResponse> getTopSellingProductsForSystem(int limit) {
+        return reportRepository.getTopSellingProductsForSystem(
+                        OrderStatus.COMPLETED,
+                        PaymentStatus.PAID,
+                        PageRequest.of(0, limit))
+                .stream()
+                .map(r -> new TopSellingProductResponse(
+                        ((Number) r[0]).longValue(),
+                        (String) r[1],
+                        ((Number) r[2]).longValue()
+                ))
+                .toList();
+    }
 }
 
