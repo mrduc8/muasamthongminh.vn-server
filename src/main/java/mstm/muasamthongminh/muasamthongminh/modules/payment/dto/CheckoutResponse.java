@@ -6,6 +6,7 @@ import mstm.muasamthongminh.muasamthongminh.modules.payment.enums.PaymentMethod;
 import mstm.muasamthongminh.muasamthongminh.modules.payment.enums.PaymentStatus;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Getter
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class CheckoutResponse {
+    private List<Long> orderIds;
     private Long orderId;
     private PaymentMethod paymentMethod;
     private PaymentStatus paymentStatus;

@@ -114,6 +114,9 @@ public class SecurityConfig {
                         .requestMatchers("api/reports/system/**").hasRole("ADMIN")
                         .requestMatchers("api/reports/export/**").hasAnyRole("ADMIN", "SELLER")
 
+                        .requestMatchers("api/chat/conversations/**").hasRole("SELLER")
+                        .requestMatchers("/api/chat/messages/**").authenticated()
+                        .requestMatchers("/api/chat/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sm -> sm

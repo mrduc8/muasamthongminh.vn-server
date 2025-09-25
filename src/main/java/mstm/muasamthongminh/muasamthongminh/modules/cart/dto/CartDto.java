@@ -28,4 +28,6 @@ public class CartDto {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private List<ShopCartDto> shops;
 }

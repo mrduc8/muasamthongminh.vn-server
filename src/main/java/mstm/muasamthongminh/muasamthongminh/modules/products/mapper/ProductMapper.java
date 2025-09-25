@@ -77,6 +77,14 @@ public class ProductMapper {
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
 
+        if (entity.getShopId() != null) {
+            Shop shop = entity.getShopId();
+            dto.setShopId(shop.getId());
+            dto.setShopName(shop.getShopName());
+            dto.setShopLogo(shop.getLogoUrl());
+            dto.setShopAddress(shop.getAddress());
+        }
+
         // Map images
         if (images != null) {
             dto.setImages(images.stream().map(img -> {

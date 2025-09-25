@@ -13,10 +13,17 @@ import mstm.muasamthongminh.muasamthongminh.modules.products.model.ProductVarian
 import mstm.muasamthongminh.muasamthongminh.modules.products.model.Products;
 import mstm.muasamthongminh.muasamthongminh.modules.products.repository.ProductVariantsRepository;
 import mstm.muasamthongminh.muasamthongminh.modules.products.repository.ProductsRepository;
+import mstm.muasamthongminh.muasamthongminh.modules.shop.model.Shop;
+import mstm.muasamthongminh.muasamthongminh.modules.shop.repository.ShopRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +33,22 @@ public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
 
-    // Tận dụng repo sẵn có của bạn
     private final ProductVariantsRepository productVariantsRepository;
     private final ProductsRepository productsRepository;
+    private final ShopRepository shopRepository;
+
+    private CartDto buildCartDto (Cart cart, List<CartItem> items){
+        List<Long> shopIds = items.stream()
+                .map(CartItem::getShopId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<Long, Shop> shopMap = shopRepository.findAllById(shopIds).stream()
+                .collect(Collectors.toMap(Shop::getId, s -> s, (s1, s2) -> s1));
+
+        return CartMapper.toDto(cart, items, shopMap);
+    }
 
     @Override
     @Transactional
@@ -36,7 +56,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = getOrCreateCart(userId, sessionId);
         // nạp items để mapper trả ra luôn
         List<CartItem> items = cartItemRepository.findByCart_Id(cart.getId());
-        return CartMapper.toDto(cart, items);
+        return buildCartDto(cart, items);
     }
 
     @Override
@@ -81,7 +101,7 @@ public class CartServiceImpl implements CartService {
         cart = cartRepository.save(cart);
 
         List<CartItem> items = cartItemRepository.findByCart_Id(cart.getId());
-        return CartMapper.toDto(cart, items);
+        return buildCartDto(cart, items);
     }
 
     @Override
@@ -105,7 +125,7 @@ public class CartServiceImpl implements CartService {
         cart = cartRepository.save(cart);
 
         List<CartItem> items = cartItemRepository.findByCart_Id(cart.getId());
-        return CartMapper.toDto(cart, items);
+        return buildCartDto(cart, items);
     }
 
     @Override
@@ -125,7 +145,7 @@ public class CartServiceImpl implements CartService {
         cart = cartRepository.save(cart);
 
         List<CartItem> items = cartItemRepository.findByCart_Id(cart.getId());
-        return CartMapper.toDto(cart, items);
+        return buildCartDto(cart, items);
     }
 
     @Override

@@ -26,6 +26,10 @@ public class ProductResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private String shopName;
+    private String shopLogo;
+    private String shopAddress;
+
     private List<ImageResponse> images;
     private List<VariantResponse> variants;
 

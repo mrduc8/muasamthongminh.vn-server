@@ -7,6 +7,7 @@ import mstm.muasamthongminh.muasamthongminh.modules.auth.model.User;
 import mstm.muasamthongminh.muasamthongminh.modules.payment.enums.OrderStatus;
 import mstm.muasamthongminh.muasamthongminh.modules.payment.enums.PaymentMethod;
 import mstm.muasamthongminh.muasamthongminh.modules.payment.enums.PaymentStatus;
+import mstm.muasamthongminh.muasamthongminh.modules.shop.model.Shop;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,6 +29,10 @@ public class Orders {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shop_id", nullable = false)
+    private Shop shopId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", nullable = false)

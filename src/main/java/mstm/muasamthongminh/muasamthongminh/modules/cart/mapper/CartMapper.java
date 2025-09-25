@@ -2,17 +2,18 @@ package mstm.muasamthongminh.muasamthongminh.modules.cart.mapper;
 
 import mstm.muasamthongminh.muasamthongminh.modules.cart.dto.CartDto;
 import mstm.muasamthongminh.muasamthongminh.modules.cart.dto.CartItemDto;
+import mstm.muasamthongminh.muasamthongminh.modules.cart.dto.ShopCartDto;
 import mstm.muasamthongminh.muasamthongminh.modules.cart.model.Cart;
 import mstm.muasamthongminh.muasamthongminh.modules.cart.model.CartItem;
+import mstm.muasamthongminh.muasamthongminh.modules.shop.model.Shop;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-// CartMapper.java
 public final class CartMapper {
-    public static CartDto toDto(Cart cart, List<CartItem> items) {
+    public static CartDto toDto(Cart cart, List<CartItem> items, Map<Long, Shop> shopMap) {
         CartDto dto = new CartDto();
 
         dto.setId(cart.getId());
@@ -28,22 +29,42 @@ public final class CartMapper {
         dto.setCreatedAt(cart.getCreatedAt());
         dto.setUpdatedAt(cart.getUpdatedAt());
 
-        dto.setItems(items.stream().map(CartMapper::toItemDto).toList());
+        Map<Long, List<CartItem>> grouped = items.stream().filter(i -> i.getShopId() != null)
+                .collect(Collectors.groupingBy(CartItem::getShopId));
+
+        List<ShopCartDto> shopDtos = grouped.entrySet().stream()
+                        .map(entry -> {
+                            Long shopId = entry.getKey();
+                            Shop shop = shopMap.get(shopId);
+
+                            List<CartItemDto> itemDtos = entry.getValue().stream()
+                                    .map(CartMapper::toItemDto).toList();
+
+                            return ShopCartDto.builder()
+                                    .shopId(shopId)
+                                    .shopName(shop != null ? shop.getShopName() : "Unknown")
+                                    .shopLogoUrl(shop != null ? shop.getLogoUrl() : null)
+                                    .shopBannerUrl(shop != null ? shop.getBannerUrl() : null)
+                                    .items(itemDtos)
+                                    .build();
+                        }).toList();
+
+        dto.setShops(shopDtos);
         return dto;
     }
 
     private static CartItemDto toItemDto(CartItem i) {
-        CartItemDto d = new CartItemDto();
-        d.setId(i.getId());
-        d.setShopId(i.getShopId());
-        d.setProductId(i.getProductId());
-        d.setProductVariantId(i.getProductVariantId());
-        d.setQuantity(i.getQuantity());
-        d.setUnitPrice(i.getUnitPrice());
-        d.setLineTotal(i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity())));
-        d.setNameSnapshot(i.getNameSnapshot());
-        d.setImageUrlSnapshot(i.getImageUrlSnapshot());
-        d.setVariantLabelSnapshot(i.getVariantLabelSnapshot());
-        return d;
+        return CartItemDto.builder()
+                .id(i.getId())
+                .shopId(i.getShopId())
+                .productId(i.getProductId())
+                .productVariantId(i.getProductVariantId())
+                .quantity(i.getQuantity())
+                .unitPrice(i.getUnitPrice())
+                .lineTotal(i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity())))
+                .nameSnapshot(i.getNameSnapshot())
+                .imageUrlSnapshot(i.getImageUrlSnapshot())
+                .variantLabelSnapshot(i.getVariantLabelSnapshot())
+                .build();
     }
 }
